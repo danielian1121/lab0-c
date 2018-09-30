@@ -21,8 +21,6 @@ typedef struct ELE {
        This array needs to be explicitly allocated and freed */
     char *value;
     struct ELE *next;
-
-    struct ELE *prev;
 } list_ele_t;
 
 /* Queue structure */

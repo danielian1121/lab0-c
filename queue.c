@@ -85,14 +85,11 @@ bool q_insert_head(queue_t *q, char *s)
     /** Set the new element. */
     newh->value = s_copy;
     newh->next = q->head;
-    newh->prev = NULL;
     q->head = newh;
 
     /** If the new element is the first, set q->tail as q->head. */
     if (q->head->next == NULL)
         q->tail = q->head;
-    else
-        q->head->next->prev = q->head;
 
     /** Add count. */
     q->count++;
@@ -131,16 +128,14 @@ bool q_insert_tail(queue_t *q, char *s)
 
     /** Set the new element. */
     newh->value = s_copy;
-    newh->prev = q->tail;
     newh->next = NULL;
-    q->tail = newh;
-
-
-    /** If the new element is the first, set q->head as q->tail. */
-    if (q->tail->prev == NULL)
+    if (q->tail) {
+        q->tail->next = newh;
+        q->tail = newh;
+    } else {
+        q->tail = newh;
         q->head = q->tail;
-    else
-        q->tail->prev->next = q->tail;
+    }
 
     /** Add count. */
     q->count++;
@@ -182,8 +177,6 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
     list_ele_t *temp;
     temp = q->head;
     q->head = q->head->next;
-    if (q->head != NULL)
-        q->head->prev = NULL;
 
     /** Free the head element. */
     free(temp->value);
@@ -214,17 +207,21 @@ void q_reverse(queue_t *q)
 {
     if (q == NULL || q->head == NULL)
         return;
-    list_ele_t *temp = q->head;
-    list_ele_t *swap;
-    /** Swap next and prev in every element from head to tail. */
-    while (temp) {
-        swap = temp->next;
-        temp->next = temp->prev;
-        temp->prev = swap;
-        temp = swap;
+    list_ele_t *prev = q->head;
+    list_ele_t *now = prev->next;
+    if (!now)
+        return;
+    list_ele_t *next = now->next;
+    while (now != q->tail) {
+        now->next = prev;
+        prev = now;
+        now = next;
+        next = next->next;
     }
-    /* swap head and tail */
-    swap = q->head;
+    q->head->next = NULL;
+    q->tail->next = prev;
+    now = q->head;
     q->head = q->tail;
-    q->tail = swap;
+    q->tail = now;
+    return;
 }
