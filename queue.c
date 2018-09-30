@@ -62,33 +62,39 @@ void q_free(queue_t *q)
  */
 bool q_insert_head(queue_t *q, char *s)
 {
+    /** If q is NULL, return false. */
     if (q == NULL)
         return false;
+
     list_ele_t *newh;
-    /* What should you do if the q is NULL? */
     newh = malloc(sizeof(list_ele_t));
+
+    /** If malloc failed, return false.  */
     if (newh == NULL)
         return false;
-    /* Don't forget to allocate space for the string and copy it */
-    /* What if either call to malloc returns NULL? */
+
     char *s_copy = malloc(strlen(s) + 1);
+
+    /** If malloc failed, return false. */
     if (s_copy == NULL) {
         free(newh);
         return false;
     }
     strcpy(s_copy, s);
-    if (s_copy == 0) {
-        free(newh);
-        return false;
-    }
+
+    /** Set the new element. */
     newh->value = s_copy;
     newh->next = q->head;
     newh->prev = NULL;
     q->head = newh;
+
+    /** If the new element is the first, set q->tail as q->head. */
     if (q->head->next == NULL)
         q->tail = q->head;
     else
         q->head->next->prev = q->head;
+
+    /** Add count. */
     q->count++;
     return true;
 }
@@ -103,32 +109,40 @@ bool q_insert_head(queue_t *q, char *s)
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
+    /** If q is NULL, return false. */
     if (q == NULL)
         return false;
-    /* You need to write the complete code for this function */
-    /* Remember: It should operate in O(1) time */
+
     list_ele_t *newh;
     newh = malloc(sizeof(list_ele_t));
+
+    /** If malloc failed, return false.  */
     if (newh == NULL)
         return false;
+
     char *s_copy = malloc(strlen(s) + 1);
+
+    /** If malloc failed, return false. */
     if (s_copy == NULL) {
         free(newh);
         return false;
     }
     strcpy(s_copy, s);
-    if (s_copy == 0) {
-        free(newh);
-        return false;
-    }
+
+    /** Set the new element. */
     newh->value = s_copy;
     newh->prev = q->tail;
     newh->next = NULL;
     q->tail = newh;
+
+
+    /** If the new element is the first, set q->head as q->tail. */
     if (q->tail->prev == NULL)
         q->head = q->tail;
     else
         q->tail->prev->next = q->tail;
+
+    /** Add count. */
     q->count++;
     return true;
 }
@@ -143,9 +157,13 @@ bool q_insert_tail(queue_t *q, char *s)
 */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    /* You need to fix up this code. */
+    /** If q is NULL or q->head is NULL, return false. */
     if (q == NULL || q->head == NULL)
         return false;
+
+    /** If len > bufsize, use strncpy to copy.
+     * Otherwise, use strcpy.
+     */
     if (sp != NULL) {
         size_t len = strlen(q->head->value);
         if (len > bufsize - 1) {
@@ -155,15 +173,23 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
             strcpy(sp, q->head->value);
         }
     }
+
+    /** Check the element is the last or not. */
     if (q->head == q->tail)
         q->tail = NULL;
+
+    /** Delete the head element. */
     list_ele_t *temp;
     temp = q->head;
     q->head = q->head->next;
     if (q->head != NULL)
         q->head->prev = NULL;
+
+    /** Free the head element. */
     free(temp->value);
     free(temp);
+
+    /** Subtract count. */
     q->count--;
     return true;
 }
@@ -174,11 +200,7 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
  */
 int q_size(queue_t *q)
 {
-    /* You need to write the code for this function */
-    /* Remember: It should operate in O(1) time */
-    if (q == NULL)
-        return 0;
-    return q->count;
+    return q ? q->count : 0;
 }
 
 /*
@@ -194,8 +216,7 @@ void q_reverse(queue_t *q)
         return;
     list_ele_t *temp = q->head;
     list_ele_t *swap;
-    /* You need to write the code for this function */
-    /* swap next and prev in every element */
+    /** Swap next and prev in every element from head to tail. */
     while (temp) {
         swap = temp->next;
         temp->next = temp->prev;
